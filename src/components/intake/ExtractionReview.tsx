@@ -59,7 +59,7 @@ export function ExtractionReview() {
         </p>
       )}
 
-      <div className="mt-6 overflow-x-auto rounded-2xl border border-ink/10 bg-white/70">
+      <div className="relative mt-6 overflow-x-auto rounded-2xl border border-ink/10 bg-white/70">
         <table className="w-full min-w-[56rem] border-collapse text-left">
           <thead>
             <tr className="border-b border-ink/10 text-sm text-ink-muted">

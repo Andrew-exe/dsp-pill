@@ -97,10 +97,11 @@ export function Sachet({ items, version, compact = false, mode = "final" }: Sach
         <Pouch ghost={ghost} />
         <div
           data-testid="sachet-label"
-          className="absolute flex flex-col rounded-md bg-ivory px-[6%] py-[5%] text-ink shadow-[inset_0_0_0_1px_rgba(15,76,74,0.18)]"
+          className="absolute flex flex-col [container-type:inline-size] rounded-md bg-ivory px-[6%] py-[5%] text-ink shadow-[inset_0_0_0_1px_rgba(15,76,74,0.18)]"
           style={{ left: "12%", right: "12%", top: "17.5%", bottom: "16%" }}
         >
-          <p className={`font-display font-semibold text-teal ${compact ? "text-[12px]" : "text-base sm:text-lg"} leading-tight`}>
+          {/* Sized from the label width (cqw) so the title never wraps before "· v1". */}
+          <p data-testid="sachet-title" className="whitespace-nowrap font-display text-[6.2cqw] font-semibold leading-tight text-teal">
             dsp-pill Formula #1842 · {version}
           </p>
           <div className="my-[4%] h-px bg-teal/25" />

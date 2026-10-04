@@ -39,7 +39,7 @@ export function FormulaComparison({ v1, v2 }: { v1: AssessmentResult; v2: Assess
         ))}
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="relative overflow-x-auto">
         <table data-testid="comparison-table" className="w-full border-collapse text-left text-lg">
           <caption className="pb-3 text-left text-sm text-ink-muted">
             Synthetic comparison of the two simulated daily formulations, per ingredient.
