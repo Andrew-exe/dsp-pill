@@ -67,8 +67,8 @@ export class DeterministicDoseEngine implements DoseProposalEngine {
               "Vitamin B12 is within range and the diet is vegan, so the fixed demonstration policy proposes an illustrative 25 mcg dietary-support total.",
             );
           }
-          if (diet === null) {
-            return mk("review", null, "diet_unknown", "Diet was not provided, so the vitamin B12 policy cannot be applied and the result is held for review.");
+          if (diet === null || diet === "unknown") {
+            return mk("review", null, "diet_unknown", "Diet was not confirmed, so the vitamin B12 policy cannot be applied and the result is held for review.");
           }
           return mk("no_addition", null, "b12_no_dietary_support_needed", "Vitamin B12 is within range and the diet is not vegan, so the fixed demonstration policy adds nothing.");
         }

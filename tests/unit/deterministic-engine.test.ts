@@ -57,6 +57,11 @@ describe("DeterministicDoseEngine", () => {
     expect(unknown).toMatchObject({ status: "review", proposedTotal: null, reasonCode: "diet_unknown" });
   });
 
+  it("an explicit Unknown diet is treated like a blank diet", () => {
+    const unknown = by(engine.propose(primary({ diet: "unknown" })), "b12");
+    expect(unknown).toMatchObject({ status: "review", proposedTotal: null, reasonCode: "diet_unknown" });
+  });
+
   it("folate support proposes 200 mcg folic acid", () => {
     expect(by(engine.propose(primary({ folate: 3.5 })), "folicAcid")).toMatchObject({ status: "propose", proposedTotal: 200, unit: "mcg" });
   });

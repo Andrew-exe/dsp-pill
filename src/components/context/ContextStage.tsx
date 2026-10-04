@@ -145,6 +145,7 @@ export function ContextStage() {
               { value: "vegetarian", label: "Vegetarian" },
               { value: "vegan", label: "Vegan" },
               { value: "other", label: "Other" },
+              { value: "unknown", label: "Unknown" },
             ]}
             onChange={(diet) => set({ diet })}
           />

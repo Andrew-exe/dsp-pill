@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useWalkthrough } from "@/components/studio/WalkthroughProvider";
 import { PRIMARY_PROFILE, PRIMARY_SUPPLEMENTS, PRIMARY_V1_BIOMARKERS } from "@/fixtures/scenarios";
 import { BIOMARKER_LABELS, draftFromExtraction, draftFromReadings, emptyDraft } from "@/lib/client/walkthrough";
@@ -23,12 +23,18 @@ export function StartStage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [choosing, setChoosing] = useState(false);
+  // Identifies the latest intake choice; a PDF read that finishes after a newer choice is dropped.
+  const readToken = useRef(0);
+  useEffect(() => () => void readToken.current++, []);
 
   async function readPdf(file: File) {
+    const token = ++readToken.current;
+    const isCurrent = () => token === readToken.current;
     setBusy(true);
     setError(null);
     try {
       const { text } = await extractPdfTextInBrowser(file);
+      if (!isCurrent()) return;
       const parsed = parseReportText(text);
       if (parsed.readings.length === 0) {
         setError(NO_BIOMARKERS_MESSAGE);
@@ -44,19 +50,24 @@ export function StartStage() {
         notice: `Read ${parsed.readings.length} of 5 supported tests from ${file.name}. Check each value against your report before confirming.`,
       });
     } catch (err) {
+      if (!isCurrent()) return;
       setError(PDF_ERROR_MESSAGES[err instanceof PdfExtractionError ? err.code : "unreadable"]);
     } finally {
-      setBusy(false);
+      if (isCurrent()) setBusy(false);
     }
   }
 
   function enterManually() {
+    readToken.current++;
+    setBusy(false);
     setError(null);
     setChoosing(false);
     dispatch({ type: "loadDraft", draft: emptyDraft(), source: "manual", collectedOn: null, notice: null });
   }
 
   function loadSynthetic() {
+    readToken.current++;
+    setBusy(false);
     setError(null);
     setChoosing(false);
     dispatch({

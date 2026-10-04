@@ -60,6 +60,8 @@ export interface WalkthroughState {
   contextSubmitted: boolean;
   /** Incremented on every input change; results computed for an older version are ignored. */
   inputVersion: number;
+  /** Incremented on every input change and every follow-up load; guards follow-up responses. */
+  followUpVersion: number;
   result: AssessmentResult | null;
   resultState: "idle" | "loading" | "ready" | "error";
   resultError: string | null;
@@ -89,8 +91,8 @@ export type WalkthroughAction =
   | { type: "resultReceived"; result: AssessmentResult; inputVersion: number }
   | { type: "resultFailed"; message: string; inputVersion: number }
   | { type: "loadFollowUp"; biomarkers: BiomarkerReading[] }
-  | { type: "followUpReceived"; result: AssessmentResult; inputVersion: number }
-  | { type: "followUpFailed"; message: string; inputVersion: number };
+  | { type: "followUpReceived"; result: AssessmentResult; followUpVersion: number }
+  | { type: "followUpFailed"; message: string; followUpVersion: number };
 
 export function emptyProfile(): Profile {
   return {
@@ -119,6 +121,7 @@ export function initialState(): WalkthroughState {
     supplements: [],
     contextSubmitted: false,
     inputVersion: 0,
+    followUpVersion: 0,
     result: null,
     resultState: "idle",
     resultError: null,
@@ -236,6 +239,7 @@ function invalidate(state: WalkthroughState, patch: Partial<WalkthroughState>): 
     ...state,
     ...patch,
     inputVersion: state.inputVersion + 1,
+    followUpVersion: state.followUpVersion + 1,
     result: null,
     resultState: "idle",
     resultError: null,
@@ -278,7 +282,8 @@ export function walkthroughReducer(state: WalkthroughState, action: WalkthroughA
         }
         return next;
       });
-      return { ...state, draft };
+      // Once confirmed, any edit to the review is an input change: re-confirmation is required.
+      return state.biomarkers ? invalidate(state, { draft, biomarkers: null }) : { ...state, draft };
     }
 
     case "confirmDraft": {
@@ -325,14 +330,18 @@ export function walkthroughReducer(state: WalkthroughState, action: WalkthroughA
 
     case "loadFollowUp":
       // Separate input from the primary assessment: the v1 result stays valid.
-      return { ...state, followUp: { biomarkers: action.biomarkers, result: null, error: null } };
+      return {
+        ...state,
+        followUpVersion: state.followUpVersion + 1,
+        followUp: { biomarkers: action.biomarkers, result: null, error: null },
+      };
 
     case "followUpReceived":
-      if (action.inputVersion !== state.inputVersion || !state.followUp) return state;
+      if (action.followUpVersion !== state.followUpVersion || !state.followUp) return state;
       return { ...state, followUp: { ...state.followUp, result: action.result, error: null } };
 
     case "followUpFailed":
-      if (action.inputVersion !== state.inputVersion || !state.followUp) return state;
+      if (action.followUpVersion !== state.followUpVersion || !state.followUp) return state;
       return { ...state, followUp: { ...state.followUp, result: null, error: action.message } };
   }
 }

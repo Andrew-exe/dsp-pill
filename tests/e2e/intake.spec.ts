@@ -99,3 +99,25 @@ test("load synthetic patient fills the review and the context form", async ({ pa
   await page.getByRole("button", { name: "Confirm biomarkers" }).click();
   await expect(page.getByText("7 of 7 answered")).toBeVisible();
 });
+
+test("a slow PDF read never overwrites a newer choice", async ({ page }) => {
+  let workerServed!: () => void;
+  const served = new Promise<void>((resolve) => (workerServed = resolve));
+  await page.route("**/pdf.worker.min.mjs", async (route) => {
+    await new Promise((r) => setTimeout(r, 4_000));
+    await route.continue();
+    workerServed();
+  });
+  await page.goto("/");
+  // Wait for the first painted frame so the click below isn't delayed past the slow read.
+  await page.evaluate(() => new Promise((r) => requestAnimationFrame(r)));
+  await upload(page, V1_PDF);
+  await expect(page.getByText("Reading your report…")).toBeVisible();
+  await page.getByRole("button", { name: "Enter manually" }).first().click();
+  await expect(valueInput(page, "25-OH Vitamin D")).toHaveValue("");
+
+  await served;
+  await page.waitForTimeout(1_000);
+  await expect(valueInput(page, "25-OH Vitamin D")).toHaveValue("");
+  await expect(page.getByText(/Read 5 of 5 supported tests/)).toHaveCount(0);
+});

@@ -39,7 +39,7 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
       const current = stateRef.current;
       const biomarkers = kind === "primary" ? current.biomarkers : current.followUp?.biomarkers;
       if (!biomarkers) return;
-      const inputVersion = current.inputVersion;
+      const { inputVersion, followUpVersion } = current;
       if (kind === "primary") dispatch({ type: "resultLoading" });
 
       void requesters.current[kind]
@@ -55,8 +55,8 @@ export function WalkthroughProvider({ children }: { children: ReactNode }) {
           } else {
             dispatch(
               outcome.kind === "result"
-                ? { type: "followUpReceived", result: outcome.result, inputVersion }
-                : { type: "followUpFailed", message: outcome.message, inputVersion },
+                ? { type: "followUpReceived", result: outcome.result, followUpVersion }
+                : { type: "followUpFailed", message: outcome.message, followUpVersion },
             );
           }
         });

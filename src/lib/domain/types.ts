@@ -49,7 +49,7 @@ export const ProfileSchema = z.object({
   sex: z.enum(["female", "male", "unknown"]).nullable(),
   heightCm: z.number().finite().nullable(),
   weightKg: z.number().finite().nullable(),
-  diet: z.enum(["omnivore", "vegetarian", "vegan", "other"]).nullable(),
+  diet: z.enum(["omnivore", "vegetarian", "vegan", "other", "unknown"]).nullable(),
   medications: z.object({ status: StatusSchema, details: z.string() }),
   medicalHistory: z.object({ status: StatusSchema, details: z.string() }),
   pregnancy: z.enum(["no", "yes", "unknown", "not_applicable"]).nullable(),

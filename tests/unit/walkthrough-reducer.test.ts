@@ -176,14 +176,38 @@ describe("walkthroughReducer", () => {
     { type: "setProfile", profile: { diet: "omnivore" } },
     { type: "setSupplements", supplements: [] },
     { type: "confirmDraft" },
+    { type: "editDraft", id: "vitaminD", patch: { valueText: "25" } },
   ])("$type invalidates the result and follow-up result", (action) => {
     let s = reduce(withResult(), { type: "loadFollowUp", biomarkers: PRIMARY_V1_BIOMARKERS });
-    s = reduce(s, { type: "followUpReceived", result: FAKE_RESULT, inputVersion: s.inputVersion });
+    s = reduce(s, { type: "followUpReceived", result: FAKE_RESULT, followUpVersion: s.followUpVersion });
     expect(s.followUp!.result).toBe(FAKE_RESULT);
     const next = reduce(s, action);
     expect(next.result).toBeNull();
     expect(next.resultState).toBe("idle");
     expect(next.followUp!.result).toBeNull();
+  });
+
+  it("editing the review after confirming drops the confirmed biomarkers and later stages", () => {
+    const s = reduce(withResult(), { type: "editDraft", id: "vitaminD", patch: { valueText: "25" } });
+    expect(s.biomarkers).toBeNull();
+    expect(s.result).toBeNull();
+    expect(reachableStages(s)).toEqual(["start"]);
+    expect(reduce(s, { type: "confirmDraft" }).biomarkers!.find((b) => b.id === "vitaminD")!.value).toBe(25);
+  });
+
+  it("editing an unconfirmed draft does not bump the input version", () => {
+    const s = reduce(initialState(), { type: "loadDraft", draft: emptyDraft(), source: "manual", collectedOn: null, notice: null });
+    expect(reduce(s, { type: "editDraft", id: "b12", patch: { valueText: "1" } }).inputVersion).toBe(s.inputVersion);
+  });
+
+  it("ignores a follow-up result requested for previously loaded follow-up biomarkers", () => {
+    const first = reduce(withResult(), { type: "loadFollowUp", biomarkers: PRIMARY_V1_BIOMARKERS });
+    const second = reduce(first, { type: "loadFollowUp", biomarkers: PRIMARY_V1_BIOMARKERS.slice(0, 2) });
+    expect(second.result).toBe(FAKE_RESULT);
+    expect(reduce(second, { type: "followUpReceived", result: FAKE_RESULT, followUpVersion: first.followUpVersion })).toBe(second);
+    expect(reduce(second, { type: "followUpReceived", result: FAKE_RESULT, followUpVersion: second.followUpVersion }).followUp!.result).toBe(
+      FAKE_RESULT,
+    );
   });
 
   it("ignores a result computed for older inputs", () => {
