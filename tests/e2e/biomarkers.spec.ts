@@ -108,3 +108,27 @@ test("changing context after the analysis never shows stale amounts", async ({ p
   await expect(page.getByTestId("review-notice")).toContainText("18 to 65");
   await expect(amount(page, "vitaminD")).toHaveText("—");
 });
+
+test("an unresolved supplements answer cannot be turned into an answer by Try a change", async ({ page }) => {
+  await goToAnalysis(page);
+  const nav = page.getByRole("navigation", { name: "Walkthrough stages" });
+  await nav.getByRole("button", { name: /Your Context/ }).click();
+  await page.getByRole("group", { name: /Existing supplements/ }).getByText("Unknown", { exact: true }).click();
+  await page.getByRole("button", { name: "See my analysis" }).click();
+  await expect(page.getByTestId("review-notice")).toBeVisible();
+  const select = page.getByLabel("Existing Vitamin D3 supplement");
+  await expect(select).toBeDisabled();
+  await expect(page.getByText("Answer the supplements question in Your Context to try this.")).toBeVisible();
+  await expect(page.getByTestId("review-notice")).toBeVisible();
+  await expect(page.getByTestId("formula-amount-vitaminD")).toHaveText("—");
+});
+
+test("a negative supplement amount is treated as unknown and goes to review, not an error", async ({ page }) => {
+  await goToAnalysis(page);
+  const nav = page.getByRole("navigation", { name: "Walkthrough stages" });
+  await nav.getByRole("button", { name: /Your Context/ }).click();
+  await page.getByLabel("Supplement 1 amount per dose").fill("-5");
+  await page.getByRole("button", { name: "See my analysis" }).click();
+  await expect(page.getByTestId("review-notice")).toBeVisible();
+  await expect(page.getByText("The analysis could not be calculated.")).toHaveCount(0);
+});

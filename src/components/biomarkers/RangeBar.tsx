@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { formatBiomarkerRange, formatBiomarkerValue } from "@/lib/client/formatAmount";
 import type { BiomarkerId } from "@/lib/domain/types";
 import type { BiomarkerInterpretation, PolicyBand } from "@/lib/engine/types";
 
@@ -76,9 +77,9 @@ export function RangeBar({ interp }: { interp: BiomarkerInterpretation }) {
   const ariaLabel =
     interp.value === null
       ? `${interp.label}: not provided.`
-      : `${interp.label}: ${interp.value} ${interp.unit}. ` +
+      : `${interp.label}: ${formatBiomarkerValue(interp.id, interp.value)} ${interp.unit}. ` +
         (interp.labRange
-          ? `Lab range ${interp.labRange.low ?? "no lower limit"} to ${interp.labRange.high ?? "no upper limit"} ${interp.unit}, ${LAB_WORDS[interp.labStatus]}. `
+          ? `Lab range ${formatBiomarkerRange(interp.id, interp.labRange)} ${interp.unit}, ${LAB_WORDS[interp.labStatus]}. `
           : `${LAB_WORDS[interp.labStatus]}. `) +
         `Demo decision band: ${BAND_WORDS[interp.band]}.`;
 
@@ -106,7 +107,7 @@ export function RangeBar({ interp }: { interp: BiomarkerInterpretation }) {
           <span className="mr-2 inline-block h-2.5 w-6 rounded-full border-2 border-ink align-middle" />
           <strong className="text-ink">Lab range</strong> from your report:{" "}
           {interp.labRange
-            ? `${interp.labRange.low ?? "no lower limit"} to ${interp.labRange.high ?? "no upper limit"} ${interp.unit}`
+            ? `${formatBiomarkerRange(interp.id, interp.labRange)} ${interp.unit}`
             : "none usable"}
         </p>
         <div>

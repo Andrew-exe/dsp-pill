@@ -74,8 +74,9 @@ export function selectApplicableRange(ranges: ReferenceRange[], sex: Sex): Refer
   return ranges.find((r) => r.sex === undefined) ?? null;
 }
 
-function isAmbiguous(ranges: ReferenceRange[], applicable: ReferenceRange | null): boolean {
-  return applicable === null && ranges.length > 0 && ranges.every((r) => r.sex !== undefined);
+function isAmbiguous(ranges: ReferenceRange[], applicable: ReferenceRange | null, sex: Sex): boolean {
+  // With a known sex, only the other sex's range is simply "no applicable range", not an ambiguity.
+  return applicable === null && (sex === "unknown" || sex === null) && ranges.length > 0 && ranges.every((r) => r.sex !== undefined);
 }
 
 function labStatusOf(value: number, r: ReferenceRange): "below" | "within" | "above" {
@@ -182,7 +183,7 @@ function interpretOne(
   const value = toCanonical(id, reading.value, reading.unit);
   const canonical = reading.ranges.map((r) => canonicalRange(id, r));
   const applicable = selectApplicableRange(canonical, sex);
-  const ambiguous = isAmbiguous(canonical, applicable);
+  const ambiguous = isAmbiguous(canonical, applicable, sex);
   const labStatus = applicable ? labStatusOf(value, applicable) : ambiguous ? "ambiguous_range" : "no_range";
   const labRange = applicable
     ? { low: applicable.low, high: applicable.high, ...(applicable.sex ? { sex: applicable.sex } : {}) }
@@ -205,6 +206,7 @@ function interpretOne(
   } else {
     const spec = SPECS[id]!;
     const isLow = spec.lowInclusive ? value <= spec.lowBelow : value < spec.lowBelow;
+    const ranges = canonical;
     const rangeIssue = (): void => {
       if (ambiguous) {
         reasons.push({
@@ -212,7 +214,7 @@ function interpretOne(
           message: "Only sex-specific lab ranges were supplied and sex is not known, so no range applies.",
         });
       } else if (!applicable) {
-        reasons.push({ code: "no_applicable_range", message: "No lab range was supplied for this result." });
+        reasons.push({ code: "no_applicable_range", message: ranges.length > 0 ? "The report has no reference range for the selected sex." : "No lab range was supplied for this result." });
       } else if (labStatus === "below") {
         reasons.push({ code: "below_lab_range", message: `${label} is below the supplied lab range.` });
       }

@@ -10,14 +10,14 @@ import { StartStage } from "@/components/intake/StartStage";
 import { DisclaimerBanner } from "@/components/shell/DisclaimerBanner";
 import { StageNav, type StageId } from "@/components/shell/StageNav";
 import { reachableStages } from "@/lib/client/walkthrough";
-import { WalkthroughProvider, useWalkthrough } from "./WalkthroughProvider";
+import { useWalkthrough } from "./WalkthroughProvider";
 
 export function Studio() {
   return (
-    <WalkthroughProvider>
+    <>
       <DisclaimerBanner />
       <StudioBody />
-    </WalkthroughProvider>
+    </>
   );
 }
 

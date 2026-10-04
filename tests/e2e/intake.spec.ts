@@ -121,3 +121,21 @@ test("a slow PDF read never overwrites a newer choice", async ({ page }) => {
   await expect(valueInput(page, "25-OH Vitamin D")).toHaveValue("");
   await expect(page.getByText(/Read 5 of 5 supported tests/)).toHaveCount(0);
 });
+
+test("a value entered in nmol/L is shown converted and rounded, never as a long decimal", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Enter manually" }).first().click();
+  await valueInput(page, "25-OH Vitamin D").fill("45");
+  await review(page).getByLabel("25-OH Vitamin D unit").selectOption("nmol/L");
+  await valueInput(page, "Vitamin B12").fill("480");
+  await valueInput(page, "Folate").fill("6.5");
+  await valueInput(page, "Ferritin").fill("62");
+  await valueInput(page, "Magnesium").fill("0.78");
+  await page.getByRole("button", { name: "Confirm biomarkers" }).click();
+  await page.getByRole("button", { name: "Fill synthetic profile" }).click();
+  await page.getByRole("button", { name: "See my analysis" }).click();
+
+  const card = page.getByTestId("biomarker-card-vitaminD");
+  await expect(card).toContainText("18 ng/mL");
+  await expect(card).not.toContainText(/\d\.\d{3,}/);
+});

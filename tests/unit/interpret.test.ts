@@ -136,6 +136,17 @@ describe("interpretBiomarkers", () => {
     }
   });
 
+  it("known sex with only the other sex's range is no_applicable_range, not ambiguous", () => {
+    const ranges = { ferritin: [R(15, 150, "ng/mL", "female")] };
+    const f = get(build({ ferritin: 80 }, { sex: "male", ranges }), "ferritin");
+    expect(f.band).toBe("review_range");
+    expect(f.labStatus).toBe("no_range");
+    const reasons = f.reviewReasons;
+    expect(reasons.map((r) => r.code)).toContain("no_applicable_range");
+    expect(reasons.map((r) => r.code)).not.toContain("ambiguous_sex_specific_range");
+    expect(reasons.find((r) => r.code === "no_applicable_range")?.message).toMatch(/selected sex/);
+  });
+
   it("generic range wins over nothing but sex-specific wins when matching", () => {
     const ranges = { ferritin: [R(30, 300, "ng/mL"), R(15, 150, "ng/mL", "female")] };
     expect(get(build({ ferritin: 180 }, { sex: "female", ranges }), "ferritin").labRange?.sex).toBe("female");

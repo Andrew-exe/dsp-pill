@@ -2,13 +2,13 @@ import { useId } from "react";
 import { formatItem } from "@/lib/client/formatAmount";
 import type { FormulationItem } from "@/lib/safety/policy";
 
-export type SachetMode = "final" | "draft" | "empty" | "pending";
+export type SachetMode = "final" | "draft" | "empty" | "pending" | "unavailable";
 
 interface SachetProps {
   items: FormulationItem[];
   version: "v1" | "v2";
   compact?: boolean;
-  /** final: ready formula. draft: review required, remaining items only. empty/pending: no amounts are printed. */
+  /** final: ready formula. draft: review required, remaining items only. empty/pending/unavailable: no amounts are printed. */
   mode?: SachetMode;
 }
 
@@ -115,7 +115,7 @@ export function Sachet({ items, version, compact = false, mode = "final" }: Sach
             </ul>
           ) : (
             <p className={`flex-1 ${text} text-ink-muted`} role={mode === "pending" ? "status" : undefined}>
-              {mode === "pending" ? "Updating your formulation…" : "No formulation proposed"}
+              {mode === "pending" ? "Updating your formulation…" : mode === "unavailable" ? "Formulation unavailable" : "No formulation proposed"}
             </p>
           )}
           {mode === "draft" && showAmounts && (

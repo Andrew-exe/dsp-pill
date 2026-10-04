@@ -65,7 +65,7 @@ export default function MethodologyPage() {
       <DisclaimerBanner />
       <main className="mx-auto max-w-4xl px-6 pb-24 pt-10">
         <Link href="/" className="font-semibold text-teal underline underline-offset-4 hover:text-teal/80">
-          Back to the demo
+          Back to the walkthrough
         </Link>
         <h1 className="mt-6 font-display text-4xl font-semibold tracking-tight text-teal sm:text-5xl">
           Methodology note

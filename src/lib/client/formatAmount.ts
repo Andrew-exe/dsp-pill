@@ -1,4 +1,4 @@
-import type { NutrientId } from "@/lib/domain/types";
+import type { BiomarkerId, NutrientId } from "@/lib/domain/types";
 import { iuToMcgVitaminD } from "@/lib/domain/units";
 import type { FormulationItem } from "@/lib/safety/policy";
 
@@ -14,4 +14,15 @@ export function formatQuantity(nutrient: NutrientId, amount: number): string {
 
 export function formatItem(item: FormulationItem): string {
   return `${item.ingredientName} ${formatQuantity(item.nutrient, item.amount)}`;
+}
+
+/** The single place a biomarker reading or range limit becomes text; canonical floats never print raw. */
+export function formatBiomarkerValue(id: BiomarkerId, value: number): string {
+  return value.toLocaleString("en-US", { maximumFractionDigits: id === "magnesium" ? 2 : 1 });
+}
+
+export function formatBiomarkerRange(id: BiomarkerId, range: { low: number | null; high: number | null }): string {
+  const low = range.low === null ? "no lower limit" : formatBiomarkerValue(id, range.low);
+  const high = range.high === null ? "no upper limit" : formatBiomarkerValue(id, range.high);
+  return `${low} to ${high}`;
 }

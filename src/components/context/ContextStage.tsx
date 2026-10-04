@@ -36,7 +36,8 @@ const fieldBox = "rounded-lg border border-ink/20 bg-white px-3 py-2 text-lg tex
 function toNumber(text: string): number | null {
   if (text.trim() === "") return null;
   const n = Number(text);
-  return Number.isFinite(n) ? n : null;
+  // Negative or non-finite entries are treated as not given, so they can never produce an unrecoverable request.
+  return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
 export function ContextStage() {
@@ -445,6 +446,10 @@ function SupplementList({ entries, onChange }: { entries: SupplementEntry[]; onC
           </div>
         );
       })}
+      <p className="text-sm text-ink-muted">
+        Amounts and frequencies cannot be negative. A negative or blank value counts as unknown and sends the analysis
+        to clinician review.
+      </p>
       <button
         type="button"
         onClick={() => onChange([...entries, newEntry()])}

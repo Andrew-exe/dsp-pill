@@ -28,7 +28,9 @@ export function FormulaStage() {
   const items = result?.formulation?.items ?? [];
   const mode: SachetMode =
     result === null
-      ? "pending"
+      ? failed
+        ? "unavailable"
+        : "pending"
       : items.length === 0
         ? "empty"
         : result.status === "ready"

@@ -86,3 +86,20 @@ test("an unresolved safety answer shows no sachet amounts", async ({ page }) => 
   await expect(simulate(page)).toBeDisabled();
   await expect(page.getByText(/unavailable while clinician review is required/)).toBeVisible();
 });
+
+test("opening Methodology and coming back keeps the walkthrough", async ({ page }) => {
+  await goToAnalysis(page);
+  await toFormula(page);
+  await expect(page.getByTestId("sachet-label")).toContainText("Vitamin D3 600 IU / 15 mcg");
+
+  await page.getByRole("link", { name: "Methodology" }).click();
+  await expect(page.getByRole("heading", { name: "Methodology note", level: 1 })).toBeVisible();
+  await expect(page.getByText(/Not medical advice/)).toBeVisible();
+  await page.getByRole("link", { name: "Back to the walkthrough" }).click();
+
+  await expect(page.getByRole("heading", { name: "Your Formula", level: 2 })).toBeVisible();
+  await expect(page.getByTestId("sachet-label")).toContainText("Vitamin D3 600 IU / 15 mcg");
+  await expect(simulate(page)).toBeEnabled();
+  await page.getByRole("button", { name: "Reset demo" }).click();
+  await expect(page.getByRole("heading", { name: "Your Starting Point", level: 2 })).toBeVisible();
+});

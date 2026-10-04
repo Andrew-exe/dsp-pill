@@ -1,5 +1,5 @@
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import { formatQuantity } from "@/lib/client/formatAmount";
+import { formatBiomarkerValue, formatQuantity } from "@/lib/client/formatAmount";
 import type { BiomarkerId, NutrientId } from "@/lib/domain/types";
 import type { BiomarkerInterpretation } from "@/lib/engine/types";
 import type { IngredientDecision } from "@/lib/safety/policy";
@@ -33,8 +33,13 @@ export function BiomarkerCard({
       <header className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="font-display text-2xl font-semibold text-teal">{interp.label}</h3>
         <p className="text-xl font-semibold text-ink">
-          {interp.value === null ? "Not provided" : `${interp.value} ${interp.unit}`}
+          {interp.value === null ? "Not provided" : `${formatBiomarkerValue(interp.id, interp.value)} ${interp.unit}`}
         </p>
+        {interp.value !== null && interp.rawValue !== null && interp.rawUnit && interp.rawUnit !== interp.unit && (
+          <p className="w-full text-sm text-ink-muted">
+            Entered as {interp.rawValue.toLocaleString("en-US", { maximumFractionDigits: 4 })} {interp.rawUnit}
+          </p>
+        )}
       </header>
       <RangeBar interp={interp} />
       <p className="mt-4 text-lg leading-relaxed text-ink">{interp.summary}</p>

@@ -2,6 +2,7 @@
 
 import { useId, useState } from "react";
 import { useWalkthrough } from "@/components/studio/WalkthroughProvider";
+import { canChangeSupplements, supplementsStatusAfterChange } from "@/lib/client/tryChange";
 import { SUPPLEMENT_CATALOG } from "@/lib/domain/supplements";
 import type { Profile, SupplementEntry } from "@/lib/domain/types";
 
@@ -28,7 +29,7 @@ export function TryAChange() {
     setSeen(value);
     if (value !== null && Number(text) !== value) setText(String(value));
   }
-  const ids = { d: useId(), diet: useId(), sup: useId() };
+  const ids = { d: useId(), diet: useId(), sup: useId(), supNote: useId() };
 
   // The edit invalidates the old result at once (no stale amounts); the stage then sends one debounced request.
   function changeVitaminD(next: string) {
@@ -42,7 +43,10 @@ export function TryAChange() {
   const d3Daily = d3 && d3.amountPerDose !== null && d3.unit === "IU" && d3.timesPerWeek === 7 ? d3.amountPerDose : null;
   const d3Value = !d3 ? 0 : d3Daily !== null && D3_AMOUNTS.includes(d3Daily) ? d3Daily : -1;
 
+  const d3Locked = !canChangeSupplements(profile.supplementsStatus);
+
   function changeD3(amount: number) {
+    if (d3Locked) return;
     const others = supplements.filter((s) => s.productId !== "vitamin-d3");
     const entry: SupplementEntry = {
       productId: "vitamin-d3",
@@ -58,8 +62,10 @@ export function TryAChange() {
         : first === -1
           ? [...supplements, entry]
           : supplements.flatMap((s, i) => (i === first ? [entry] : s.productId === "vitamin-d3" ? [] : [s]));
+    const status = supplementsStatusAfterChange(profile.supplementsStatus, next.length);
+    if (status === null) return;
     dispatch({ type: "setSupplements", supplements: next });
-    dispatch({ type: "setProfile", profile: { supplementsStatus: next.length > 0 ? "some" : "none" } });
+    dispatch({ type: "setProfile", profile: { supplementsStatus: status } });
     requestAssessment();
   }
 
@@ -141,7 +147,7 @@ export function TryAChange() {
               Existing Vitamin D3 supplement
             </label>
             <div className="mt-2">
-              <select id={ids.sup} value={d3Value} onChange={(e) => changeD3(Number(e.target.value))} className={field}>
+              <select id={ids.sup} value={d3Value} disabled={d3Locked} aria-describedby={d3Locked ? ids.supNote : undefined} onChange={(e) => changeD3(Number(e.target.value))} className={field + " disabled:opacity-60"}>
                 {d3Value === -1 && <option value={-1}>Your entered amount</option>}
                 {D3_AMOUNTS.map((a) => (
                   <option key={a} value={a}>
@@ -150,6 +156,11 @@ export function TryAChange() {
                 ))}
               </select>
             </div>
+            {d3Locked && (
+              <p id={ids.supNote} className="mt-2 text-sm text-ink-muted">
+                Answer the supplements question in Your Context to try this.
+              </p>
+            )}
           </div>
           <fieldset>
             <legend className="font-semibold text-ink">Medical history</legend>
