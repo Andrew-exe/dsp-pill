@@ -12,3 +12,13 @@ export function trackExternalRequests(page: Page): () => string[] {
   });
   return () => [...external];
 }
+
+/** Drives the walkthrough with the synthetic patient up to the Biomarkers stage. */
+export async function goToAnalysis(page: Page) {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Load synthetic patient" }).click();
+  await page.getByRole("button", { name: "Confirm biomarkers" }).click();
+  await page.getByRole("button", { name: "See my analysis" }).click();
+  await page.getByRole("heading", { name: "Your Biomarkers", level: 2 }).waitFor();
+  await page.getByTestId("formula-amount-vitaminD").waitFor();
+}

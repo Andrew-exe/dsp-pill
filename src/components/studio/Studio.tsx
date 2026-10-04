@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { BiomarkersStage } from "@/components/biomarkers/BiomarkersStage";
 import { ContextStage } from "@/components/context/ContextStage";
 import { StartStage } from "@/components/intake/StartStage";
 import { DisclaimerBanner } from "@/components/shell/DisclaimerBanner";
@@ -46,7 +47,8 @@ function StudioBody() {
       <main ref={stageRef} className="mx-auto max-w-5xl px-6 pb-24 pt-4">
         {state.stage === "start" && <StartStage />}
         {state.stage === "context" && <ContextStage />}
-        {(state.stage === "biomarkers" || state.stage === "formula" || state.stage === "next") && (
+        {state.stage === "biomarkers" && <BiomarkersStage />}
+        {(state.stage === "formula" || state.stage === "next") && (
           <PlaceholderStage stage={state.stage} />
         )}
       </main>
