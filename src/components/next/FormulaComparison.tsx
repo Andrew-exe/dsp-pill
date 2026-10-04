@@ -26,26 +26,25 @@ export function FormulaComparison({ v1, v2 }: { v1: AssessmentResult; v2: Assess
   const blocked = s1 !== null || s2 !== null;
 
   return (
-    <div className="space-y-8">
-      <div className="grid items-start justify-items-center gap-8 sm:grid-cols-2">
+    <div className="grid items-center gap-x-10 gap-y-6 lg:grid-cols-[auto_1fr]">
+      <div className="grid grid-cols-2 justify-items-center gap-4 sm:gap-6">
         {[
           { label: "Formula v1", result: v1, version: "v1" as const },
           { label: "Formula v2", result: v2, version: "v2" as const },
         ].map(({ label, result, version }) => (
-          <div key={version} className="w-full max-w-[220px]">
-            <p className="mb-3 text-center font-display text-lg font-semibold text-teal">{label}</p>
-            <Sachet items={result.formulation?.items ?? []} version={version} compact mode={sachetMode(result)} />
+          <div key={version} className="w-full max-w-[190px] sm:w-[190px]">
+            <p className="mb-2 text-center font-display text-base font-semibold text-teal">{label}</p>
+            <Sachet items={result.formulation?.items ?? []} version={version} compact caption={false} mode={sachetMode(result)} />
           </div>
         ))}
       </div>
 
+      <div>
       <div className="relative overflow-x-auto">
-        <table data-testid="comparison-table" className="w-full border-collapse text-left text-lg">
-          <caption className="pb-3 text-left text-sm text-ink-muted">
-            Synthetic comparison of the two simulated daily formulations, per ingredient.
-          </caption>
+        <table data-testid="comparison-table" className="w-full border-collapse text-left">
+          <caption className="sr-only">Synthetic comparison of the two simulated daily formulations, per ingredient.</caption>
           <thead>
-            <tr className="border-b-2 border-teal/30 text-sm uppercase tracking-widest text-ink-muted">
+            <tr className="border-b-2 border-teal/30 text-sm text-ink-muted">
               <th scope="col" className="py-2 pr-4 font-semibold">Ingredient</th>
               <th scope="col" className="py-2 pr-4 font-semibold">Formula v1</th>
               <th scope="col" className="py-2 font-semibold">Formula v2</th>
@@ -54,21 +53,22 @@ export function FormulaComparison({ v1, v2 }: { v1: AssessmentResult; v2: Assess
           <tbody>
             {NUTRIENT_IDS.map((n) => (
               <tr key={n} className="border-b border-teal/15">
-                <th scope="row" className="py-3 pr-4 font-semibold">{INGREDIENT_NAMES[n]}</th>
-                <td className="py-3 pr-4">
+                <th scope="row" className="py-2.5 pr-4 font-semibold">{INGREDIENT_NAMES[n]}</th>
+                <td className="py-2.5 pr-4 tabular-nums">
                   {blocked ? <ReviewCell text={s1} /> : amountFor(v1, n)}
                 </td>
-                <td className="py-3">{blocked ? <ReviewCell text={s2} /> : amountFor(v2, n)}</td>
+                <td className="py-2.5 tabular-nums">{blocked ? <ReviewCell text={s2} /> : amountFor(v2, n)}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
       {blocked && (
-        <p className="text-sm text-ink-muted">
+        <p className="mt-3 text-sm text-ink-muted">
           Amounts are not compared while either formulation is held for review or incomplete.
         </p>
       )}
+      </div>
     </div>
   );
 }

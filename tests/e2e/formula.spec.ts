@@ -29,6 +29,7 @@ test("the sachet shows the formula and the simulation steps through to a demo co
   await expect(label).toContainText("dsp-pill Formula #1842 · v1");
   for (const line of LINES) await expect(label).toContainText(line);
   await expect(page.getByText("Total daily formulation: one simulated sachet")).toBeVisible();
+  await expect(page.getByText(/not proof of safety/)).toBeVisible();
 
   const text = await page.locator("main").innerText();
   expect(text).not.toMatch(/\b(mg|g) total|excipient|capsule/i);

@@ -7,11 +7,11 @@ export interface TrendPoint {
   interp: BiomarkerInterpretation;
 }
 
-const W = 600;
-const H = 150;
-const PAD_Y = 22;
-const X_FIRST = 150;
-const X_LAST = 450;
+const W = 200;
+const H = 96;
+const PAD_Y = 20;
+const X_FIRST = 44;
+const X_LAST = 156;
 
 /**
  * Two measured points and nothing else: the segment joins them, and nothing extends beyond either point.
@@ -40,9 +40,9 @@ export function TrendChart({ first, second }: { first: TrendPoint; second: Trend
     (lab ? `. Lab range ${formatBiomarkerRange(first.interp.id, lab)} ${unit}.` : ".");
 
   return (
-    <figure data-testid="trend-chart" className="rounded-2xl border border-teal/15 bg-ivory-deep/50 p-5">
-      <figcaption className="font-display text-xl font-semibold text-teal">
-        {first.interp.label} <span className="text-base font-normal text-ink-muted">({unit})</span>
+    <figure data-testid="trend-chart" className="rounded-xl border border-teal/15 bg-ivory-deep/50 p-3">
+      <figcaption className="font-display text-base font-semibold leading-tight text-teal">
+        {first.interp.label} <span className="block font-sans text-xs font-normal text-ink-muted">{unit}</span>
       </figcaption>
       <svg role="img" aria-label={ariaLabel} viewBox={`0 0 ${W} ${H}`} className="mt-2 w-full overflow-visible">
         {lab && (
@@ -56,9 +56,6 @@ export function TrendChart({ first, second }: { first: TrendPoint; second: Trend
               fill="var(--color-teal-soft)"
               opacity={0.75}
             />
-            <text x={W - 6} y={y(Math.min(max, lab.high ?? max)) + 14} textAnchor="end" fontSize={12} fill="var(--color-ink-muted)">
-              Lab range {lab.low === null ? "…" : fmt(lab.low)}–{lab.high === null ? "…" : fmt(lab.high)}
-            </text>
           </>
         )}
         {points.length === 2 && (
@@ -68,7 +65,7 @@ export function TrendChart({ first, second }: { first: TrendPoint; second: Trend
             x2={points[1].x}
             y2={y(values[1])}
             stroke="var(--color-ink)"
-            strokeWidth={2}
+            strokeWidth={1.5}
           />
         )}
         {points.map(({ p, x }, i) => (
@@ -77,18 +74,18 @@ export function TrendChart({ first, second }: { first: TrendPoint; second: Trend
               data-testid="trend-point"
               cx={x}
               cy={y(p.interp.value as number)}
-              r={8}
+              r={5}
               fill="var(--color-ivory)"
               stroke="var(--color-ink)"
-              strokeWidth={3}
+              strokeWidth={2}
             />
-            <text x={x} y={y(p.interp.value as number) - 16} textAnchor="middle" fontSize={16} fontWeight={600} fill="var(--color-ink)">
+            <text x={x} y={y(p.interp.value as number) - 10} textAnchor="middle" fontSize={13} fontWeight={600} fill="var(--color-ink)">
               {fmt(p.interp.value as number)}
             </text>
           </g>
         ))}
       </svg>
-      <dl className="mt-1 grid grid-cols-2 text-center text-sm text-ink-muted">
+      <dl className="mt-1 grid grid-cols-2 text-center text-[11px] tabular-nums text-ink-muted">
         {[first, second].map((p, i) => (
           <div key={i}>
             <dt className="sr-only">Sample {i + 1}</dt>

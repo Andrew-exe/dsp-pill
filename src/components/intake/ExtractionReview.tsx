@@ -44,7 +44,7 @@ export function ExtractionReview() {
   };
 
   return (
-    <section aria-labelledby="review-heading" className="mt-10">
+    <section aria-labelledby="review-heading" className="mt-8">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 id="review-heading" className="font-display text-2xl text-teal">
           Review your biomarkers
@@ -96,7 +96,7 @@ export function ExtractionReview() {
         </div>
       )}
 
-      <div className="mt-8 flex flex-wrap items-center gap-5">
+      <div className="mt-6 flex flex-wrap items-center gap-5">
         <button
           type="button"
           disabled={pending > 0}
@@ -133,8 +133,8 @@ function ReviewRow({
   const issues = row.issues.filter((i) => ISSUE_TEXT[i]);
 
   return (
-    <tr className={"border-b border-ink/5 align-top last:border-0 " + (error ? "bg-danger-soft/40" : "")}>
-      <th scope="row" className="px-5 py-4 font-semibold text-ink">
+    <tr className={"border-b border-ink/5 align-middle last:border-0 " + (error ? "bg-danger-soft/40" : "")}>
+      <th scope="row" className="px-5 py-3 font-semibold text-ink">
         <span className="text-lg">{label}</span>
         {issues.map((i) => (
           <span key={i} className="mt-1 block text-sm font-medium text-amber-ink">
@@ -153,7 +153,7 @@ function ReviewRow({
           <td colSpan={3} className="px-3 py-4 text-ink-muted">
             Not provided. The analysis will be incomplete without it.
           </td>
-          <td className="px-5 py-4">
+          <td className="px-5 py-3">
             <button
               type="button"
               onClick={() => onEdit({ provided: true, valueText: "" })}
@@ -166,7 +166,7 @@ function ReviewRow({
         </>
       ) : (
         <>
-          <td className="px-3 py-4">
+          <td className="px-3 py-3">
             <input
               type="text"
               inputMode="decimal"
@@ -193,7 +193,7 @@ function ReviewRow({
               </div>
             )}
           </td>
-          <td className="px-3 py-4">
+          <td className="px-3 py-3">
             <select
               aria-label={`${label} unit`}
               value={row.unit}
@@ -208,11 +208,10 @@ function ReviewRow({
               ))}
             </select>
           </td>
-          <td className="px-3 py-4">
+          <td className="px-3 py-3">
             {row.ranges.length > 0 ? (
               <p className="py-2 text-lg tabular-nums text-ink">
                 {row.ranges.map(formatRange).join("; ")}
-                <span className="block text-sm text-ink-muted">From your report</span>
               </p>
             ) : (
               <div className="flex items-center gap-2">
@@ -238,12 +237,12 @@ function ReviewRow({
               </div>
             )}
           </td>
-          <td className="px-5 py-4">
+          <td className="px-5 py-3">
             <button
               type="button"
               onClick={() => onEdit({ provided: false })}
               aria-label={`Mark ${label} as not provided`}
-              className="py-1.5 text-sm font-semibold text-ink-muted underline underline-offset-4 hover:text-teal"
+              className="py-1 text-xs font-medium text-ink-muted/80 underline decoration-ink/20 underline-offset-4 hover:text-teal hover:decoration-teal"
             >
               Not provided
             </button>

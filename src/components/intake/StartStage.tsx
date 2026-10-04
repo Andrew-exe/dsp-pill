@@ -75,7 +75,7 @@ export function StartStage() {
       draft: draftFromReadings(PRIMARY_V1_BIOMARKERS),
       source: "fixture",
       collectedOn: PRIMARY_V1_BIOMARKERS[0].collectedOn,
-      notice: "Loaded synthetic patient SP-1842. Their context is filled in too; you can change anything.",
+      notice: null,
       profile: PRIMARY_PROFILE,
       supplements: PRIMARY_SUPPLEMENTS,
     });
@@ -90,10 +90,10 @@ export function StartStage() {
           <h2 id="stage-heading" tabIndex={-1} className="font-display text-4xl font-semibold text-teal outline-none">
             Your Starting Point
           </h2>
-          <p className="mt-3 text-lg leading-relaxed text-ink-muted">
+          <p className="mt-2 text-lg text-ink-muted">
             {showReview
-              ? "Check what we read before anything is analysed. You can correct any value."
-              : "Start from a lab report, type your results in, or explore with a synthetic patient."}
+              ? "Check what we read before anything is analysed."
+              : "Start from your lab report, or explore with a synthetic patient."}
           </p>
         </div>
         {showReview && (
@@ -110,28 +110,28 @@ export function StartStage() {
       {showReview ? (
         <ExtractionReview />
       ) : (
-        <div className="mt-10">
-          <div className="grid gap-8 lg:grid-cols-[1.4fr_1fr]">
+        <div className="mt-8">
+          <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
             <PdfDropzone busy={busy} onFile={readPdf} />
-            <div className="flex flex-col gap-6">
-              <div className="rounded-2xl border border-teal/20 bg-ivory-deep p-6">
+            <div className="flex flex-col gap-4">
+              <div className="rounded-2xl border border-teal/20 bg-ivory-deep p-5">
                 <p className="font-display text-xl text-teal">Type your results in</p>
-                <p className="mt-1 text-ink-muted">Five tests, with the lab ranges printed on your report.</p>
+                <p className="mt-1 text-sm text-ink-muted">Five tests and their lab ranges.</p>
                 <button
                   type="button"
                   onClick={enterManually}
-                  className="mt-4 rounded-full border border-teal px-5 py-2.5 font-semibold text-teal hover:bg-teal hover:text-ivory"
+                  className="mt-3 rounded-full border border-teal px-5 py-2.5 font-semibold text-teal hover:bg-teal hover:text-ivory"
                 >
                   Enter manually
                 </button>
               </div>
-              <div className="rounded-2xl border border-amber/50 bg-amber-soft/60 p-6">
+              <div className="rounded-2xl border border-amber/50 bg-amber-soft/60 p-5">
                 <p className="font-display text-xl text-teal">Try the demo patient</p>
-                <p className="mt-1 text-ink-muted">A synthetic 32-year-old with a July report and existing Vitamin D.</p>
+                <p className="mt-1 text-sm text-ink-muted">Synthetic, 32, already takes Vitamin D.</p>
                 <button
                   type="button"
                   onClick={loadSynthetic}
-                  className="mt-4 rounded-full bg-teal px-5 py-2.5 font-semibold text-ivory hover:bg-teal/90"
+                  className="mt-3 rounded-full bg-teal px-5 py-2.5 font-semibold text-ivory hover:bg-teal/90"
                 >
                   Load synthetic patient
                 </button>
@@ -152,10 +152,10 @@ export function StartStage() {
             </div>
           )}
 
-          <div className="mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm">
-            <span className="text-ink-muted">No report to hand? Download a synthetic one:</span>
+          <div className="mt-5 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-xs text-ink-muted">
+            <span>Synthetic reports to try:</span>
             {REPORT_LINKS.map((r) => (
-              <a key={r.href} href={r.href} download className="font-semibold text-teal underline underline-offset-4">
+              <a key={r.href} href={r.href} download className="font-medium text-teal/80 underline underline-offset-4 hover:text-teal">
                 {r.label}
               </a>
             ))}

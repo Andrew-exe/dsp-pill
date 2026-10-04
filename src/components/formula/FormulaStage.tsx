@@ -2,7 +2,7 @@
 
 import { MotionConfig, motion } from "motion/react";
 import { useId } from "react";
-import { ReviewNotice } from "@/components/shared/ReviewNotice";
+import { NOT_PROOF_OF_SAFETY, ReviewNotice } from "@/components/shared/ReviewNotice";
 import { useEnsureAssessment } from "@/components/studio/useEnsureAssessment";
 import { useWalkthrough } from "@/components/studio/WalkthroughProvider";
 import type { AssessmentResult } from "@/lib/safety/policy";
@@ -44,12 +44,11 @@ export function FormulaStage() {
         <h2 id="stage-heading" tabIndex={-1} className="font-display text-4xl font-semibold text-teal outline-none">
           Your Formula
         </h2>
-        <p className="mt-3 max-w-2xl text-lg leading-relaxed text-ink-muted">
-          Your biomarkers, context and existing supplements become one simulated daily sachet, using a fixed
-          demonstration policy.
+        <p className="mt-2 max-w-2xl text-lg text-ink-muted">
+          Your biomarkers, context and supplements, as one simulated daily sachet.
         </p>
 
-        <div className="mt-10 grid items-start gap-10 md:grid-cols-[minmax(0,320px)_1fr]">
+        <div className="mt-8 grid items-center gap-10 md:grid-cols-[minmax(0,380px)_1fr]">
           <motion.div
             key={mode === "pending" ? "pending" : "settled"}
             initial={{ y: -14, opacity: 0.6 }}
@@ -81,6 +80,11 @@ export function FormulaStage() {
               {reason && (
                 <p id={reasonId} className="mt-3 max-w-md text-sm text-ink-muted">
                   {reason}
+                </p>
+              )}
+              {result?.status === "ready" && (
+                <p data-testid="safety-note" className="mt-3 max-w-md text-sm text-ink-muted">
+                  {NOT_PROOF_OF_SAFETY}
                 </p>
               )}
             </div>

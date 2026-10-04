@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { useWalkthrough } from "@/components/studio/WalkthroughProvider";
 import { PRIMARY_PROFILE, PRIMARY_SUPPLEMENTS } from "@/fixtures/scenarios";
 import { contextProgress, type ContextField } from "@/lib/client/walkthrough";
@@ -65,14 +65,13 @@ export function ContextStage() {
       <h2 id="stage-heading" tabIndex={-1} className="font-display text-4xl font-semibold text-teal outline-none">
         Your Context
       </h2>
-      <p className="mt-3 max-w-2xl text-lg leading-relaxed text-ink-muted">
-        A few answers decide whether this prototype may propose amounts at all. Leave anything you&apos;re unsure of
-        blank or choose Unknown: unanswered questions send the analysis to clinician review, never to a default.
+      <p className="mt-2 max-w-2xl text-lg text-ink-muted">
+        These answers decide whether amounts can be proposed. Unknown is always an option.
       </p>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_18rem]">
-        <form className="space-y-8" onSubmit={(e) => e.preventDefault()} aria-label="Your context">
-          <div className="grid gap-8 sm:grid-cols-[10rem_1fr]">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_18rem]">
+        <form className="space-y-6" onSubmit={(e) => e.preventDefault()} aria-label="Your context">
+          <div className="grid gap-6 sm:grid-cols-[9rem_1fr]">
             <Question title="Age" unanswered={missing.has("age")}>
               {(id) => (
                 <div className="flex items-center gap-2">
@@ -92,7 +91,7 @@ export function ContextStage() {
             </Question>
             <Choice
               title="Sex used for lab context"
-              hint="Only used to pick a sex-specific lab range when your report gives one. It never changes an amount."
+              hint="Only picks a sex-specific lab range; it never changes an amount."
               unanswered={missing.has("sex")}
               value={profile.sex}
               options={[
@@ -104,7 +103,7 @@ export function ContextStage() {
             />
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2">
+          <div className="flex flex-wrap gap-x-10 gap-y-6">
             <Question title="Height" optional>
               {(id) => (
                 <div className="flex items-center gap-2">
@@ -168,7 +167,7 @@ export function ContextStage() {
 
           <Choice
             title="Pregnancy or breastfeeding"
-            hint="Asked on its own because it changes what this prototype may propose."
+            hint="Changes what this prototype may propose."
             unanswered={missing.has("pregnancy")}
             value={profile.pregnancy}
             options={[
@@ -291,11 +290,11 @@ function Choice<T extends string>({
   const name = useId();
   return (
     <fieldset>
-      <legend className="font-semibold text-ink">
+      <legend className="font-semibold text-ink" title={hint}>
         {title}
         {unanswered && <UnansweredTag />}
       </legend>
-      {hint && <p className="mt-1 text-sm text-ink-muted">{hint}</p>}
+      {hint && <span className="sr-only">{hint}</span>}
       <div className="mt-2 flex flex-wrap gap-2">
         {options.map((o) => (
           <label
@@ -364,6 +363,13 @@ function newEntry(): SupplementEntry {
 }
 
 function SupplementList({ entries, onChange }: { entries: SupplementEntry[]; onChange(entries: SupplementEntry[]): void }) {
+  // Negatives are stored as unknown; remember that one was typed so the explanation can appear only then.
+  const [sawNegative, setSawNegative] = useState(false);
+  const read = (text: string) => {
+    const n = Number(text);
+    setSawNegative(text.trim() !== "" && Number.isFinite(n) && n < 0);
+    return toNumber(text);
+  };
   const update = (i: number, patch: Partial<SupplementEntry>) =>
     onChange(entries.map((e, j) => (j === i ? { ...e, ...patch } : e)));
 
@@ -375,12 +381,12 @@ function SupplementList({ entries, onChange }: { entries: SupplementEntry[]; onC
   }
 
   return (
-    <div className="mt-4 space-y-3">
+    <div className="mt-3 space-y-3">
       {entries.map((entry, i) => {
         const n = i + 1;
         const units = entry.productId === "other" ? ALL_UNITS : SUPPLEMENT_CATALOG[entry.productId].allowedUnits;
         return (
-          <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-ink/10 bg-white/70 p-4">
+          <div key={i} className="flex flex-wrap items-end gap-3 rounded-xl border border-ink/10 bg-white/70 p-3">
             <label className="flex flex-col text-sm font-semibold text-ink">
               Product
               <select
@@ -404,7 +410,7 @@ function SupplementList({ entries, onChange }: { entries: SupplementEntry[]; onC
                 type="number"
                 min={0}
                 value={entry.amountPerDose ?? ""}
-                onChange={(e) => update(i, { amountPerDose: toNumber(e.target.value) })}
+                onChange={(e) => update(i, { amountPerDose: read(e.target.value) })}
                 className={fieldBox + " mt-1 w-28 font-normal"}
               />
             </label>
@@ -431,7 +437,7 @@ function SupplementList({ entries, onChange }: { entries: SupplementEntry[]; onC
                 min={0}
                 max={28}
                 value={entry.timesPerWeek ?? ""}
-                onChange={(e) => update(i, { timesPerWeek: toNumber(e.target.value) })}
+                onChange={(e) => update(i, { timesPerWeek: read(e.target.value) })}
                 className={fieldBox + " mt-1 w-24 font-normal"}
               />
             </label>
@@ -446,10 +452,12 @@ function SupplementList({ entries, onChange }: { entries: SupplementEntry[]; onC
           </div>
         );
       })}
-      <p className="text-sm text-ink-muted">
-        Amounts and frequencies cannot be negative. A negative or blank value counts as unknown and sends the analysis
-        to clinician review.
-      </p>
+      {sawNegative && (
+        <p role="status" className="text-sm text-amber-ink">
+          Amounts and frequencies cannot be negative. A negative or blank value counts as unknown and sends the
+          analysis to clinician review.
+        </p>
+      )}
       <button
         type="button"
         onClick={() => onChange([...entries, newEntry()])}

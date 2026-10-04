@@ -44,15 +44,13 @@ function StudioBody() {
 
   return (
     <>
-      <header className="mx-auto max-w-5xl px-6 pt-10">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="font-display text-4xl font-semibold tracking-tight text-teal sm:text-5xl">dsp-pill</h1>
-            <p className="mt-2 text-lg text-ink-muted">
-              Personalized Formulation Studio: from bloodwork to a simulated daily sachet, offline.
-            </p>
+      <header className="mx-auto max-w-5xl px-6 pt-6">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+          <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+            <h1 className="font-display text-3xl font-semibold tracking-tight text-teal">dsp-pill</h1>
+            <p className="text-ink-muted">From bloodwork to one simulated daily sachet, offline.</p>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-5 text-sm">
             <Link href="/methodology" className="font-semibold text-teal underline underline-offset-4 hover:text-teal/80">
               Methodology
             </Link>
@@ -62,7 +60,7 @@ function StudioBody() {
                 dispatch({ type: "reset" });
                 setResets((n) => n + 1);
               }}
-              className="rounded-full border-2 border-teal px-5 py-2 font-semibold text-teal hover:bg-teal hover:text-ivory"
+              className="rounded-full border-2 border-teal px-4 py-1.5 font-semibold text-teal hover:bg-teal hover:text-ivory"
             >
               Reset demo
             </button>
@@ -74,7 +72,7 @@ function StudioBody() {
         reachable={reachableStages(state)}
         onSelect={(stage) => dispatch({ type: "goTo", stage })}
       />
-      <main key={resets} ref={stageRef} className="mx-auto max-w-5xl px-6 pb-24 pt-4">
+      <main key={resets} ref={stageRef} className="mx-auto max-w-5xl px-6 pb-20 pt-2">
         {state.stage === "start" && <StartStage />}
         {state.stage === "context" && <ContextStage />}
         {state.stage === "biomarkers" && <BiomarkersStage />}

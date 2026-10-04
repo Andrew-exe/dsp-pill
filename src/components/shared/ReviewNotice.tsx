@@ -25,35 +25,33 @@ export function reviewReasons(result: AssessmentResult): string[] {
   return out;
 }
 
-export function ReviewNotice({ result }: { result: AssessmentResult }) {
+export const NOT_PROOF_OF_SAFETY =
+  "Passing these prototype screens is not proof of safety. Amounts follow a fixed demonstration policy.";
+
+/**
+ * A held result lists every plain-language reason. A ready result renders nothing: the Formula stage prints
+ * the one-line NOT_PROOF_OF_SAFETY note instead of a box.
+ */
+export function ReviewNotice({ result, compact = false }: { result: AssessmentResult; compact?: boolean }) {
   const reasons = reviewReasons(result);
-  const held = result.status !== "ready";
+  if (result.status === "ready") return null;
   return (
     <aside
-      data-testid={held ? "review-notice" : "safety-note"}
-      className={`rounded-2xl border p-6 ${held ? "border-amber/60 bg-amber-soft" : "border-teal/20 bg-ivory-deep"}`}
+      data-testid="review-notice"
+      className={`rounded-2xl border border-amber/60 bg-amber-soft ${compact ? "px-5 py-4" : "p-6"}`}
     >
-      <h3 className="font-display text-2xl font-semibold text-ink">
-        {held ? "Clinician review required" : "What passing these screens means"}
-      </h3>
-      {held && (
-        <>
-          <p className="mt-2 text-ink">
-            {result.formulation === null
-              ? "No amounts are proposed until a clinician has reviewed the points below."
-              : "Amounts held for review are not proposed; the rest are shown as a fixed demonstration policy."}
-          </p>
-          <ul className="mt-3 list-disc space-y-1 pl-5 text-ink">
-            {reasons.map((r) => (
-              <li key={r}>{r}</li>
-            ))}
-          </ul>
-        </>
-      )}
-      <p className="mt-3 text-sm text-ink-muted">
-        Passing these prototype screens is not proof that anything is safe for you. Amounts come from a fixed
-        demonstration policy, not a treatment recommendation.
+      <h3 className={`font-display font-semibold text-ink ${compact ? "text-lg" : "text-2xl"}`}>Clinician review required</h3>
+      <p className={`mt-1 text-ink ${compact ? "text-sm" : ""}`}>
+        {result.formulation === null
+          ? "No amounts are proposed until a clinician has reviewed the points below."
+          : "Amounts held for review are not proposed; the rest are shown as a fixed demonstration policy."}
       </p>
+      <ul className={`mt-2 list-disc space-y-1 pl-5 text-ink ${compact ? "text-sm" : ""}`}>
+        {reasons.map((r) => (
+          <li key={r}>{r}</li>
+        ))}
+      </ul>
+      {!compact && <p className="mt-3 text-sm text-ink-muted">{NOT_PROOF_OF_SAFETY}</p>}
     </aside>
   );
 }

@@ -15,6 +15,16 @@ test("biomarker cards show the fixed demonstration amounts and no score or perce
   await expect(page.getByTestId("biomarker-card-magnesium")).toContainText("whole-body");
   await expect(page.getByTestId("biomarker-card-vitaminD").getByRole("img")).toHaveAttribute("aria-label", /Lab range 20 to 50/);
 
+  // Supporting detail sits one click away in a closed, keyboard-reachable disclosure.
+  const vitD = page.getByTestId("biomarker-card-vitaminD");
+  await expect(vitD).toContainText("Demo band");
+  await expect(vitD.getByText("Clinical context")).toBeHidden();
+  await vitD.getByText("Why this amount?").focus();
+  await page.keyboard.press("Enter");
+  await expect(vitD.getByText("Clinical context")).toBeVisible();
+  await expect(vitD.getByText("Existing supplement, per day")).toBeVisible();
+  await expect(vitD.getByText("Combined daily amount")).toBeVisible();
+
   const text = await page.locator("main").innerText();
   expect(text).not.toMatch(/score/i);
   expect(text).not.toContain("%");

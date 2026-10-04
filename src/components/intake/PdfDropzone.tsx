@@ -29,19 +29,19 @@ export function PdfDropzone({ busy, onFile }: PdfDropzoneProps) {
       onDragLeave={() => setDragging(false)}
       onDrop={onDrop}
       className={
-        "flex flex-col justify-between rounded-sm border bg-white/80 p-8 shadow-[0_1px_0_#e5dcc6,0_18px_40px_-24px_rgba(15,76,74,0.45)] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-amber " +
+        "flex flex-col justify-between rounded-sm border bg-white/80 p-6 sm:p-7 shadow-[0_1px_0_#e5dcc6,0_18px_40px_-24px_rgba(15,76,74,0.45)] transition-colors has-[:focus-visible]:outline has-[:focus-visible]:outline-3 has-[:focus-visible]:outline-offset-4 has-[:focus-visible]:outline-amber " +
         (dragging ? "border-teal bg-teal-soft/60" : "border-ink/10")
       }
     >
       <div>
         <p className="font-display text-2xl text-teal">Upload a lab report</p>
         <p id={hintId} className="mt-1 text-ink-muted">
-          Drop a text-based PDF here, up to 10 MB and 10 pages. It is read in this browser and never uploaded.
+          Text PDF, read only in this browser.
         </p>
       </div>
       {/* Ruled lines evoke a printed lab report. */}
-      <div aria-hidden className="my-8 space-y-3 opacity-70">
-        {[78, 64, 70, 58, 66].map((w, i) => (
+      <div aria-hidden className="my-6 space-y-3 opacity-70">
+        {[78, 64, 70, 58].map((w, i) => (
           <div key={i} className="flex items-center gap-3">
             <span className="h-1.5 rounded-full bg-ink/10" style={{ width: `${w * 0.45}%` }} />
             <span className="h-1.5 w-10 rounded-full bg-teal/20" />

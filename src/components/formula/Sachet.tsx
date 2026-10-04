@@ -8,6 +8,8 @@ interface SachetProps {
   items: FormulationItem[];
   version: "v1" | "v2";
   compact?: boolean;
+  /** Print "Total daily formulation: one simulated sachet" under the pouch (the main sachet always does). */
+  caption?: boolean;
   /** final: ready formula. draft: review required, remaining items only. empty/pending/unavailable: no amounts are printed. */
   mode?: SachetMode;
 }
@@ -83,7 +85,7 @@ function Pouch({ ghost }: { ghost: boolean }) {
   );
 }
 
-export function Sachet({ items, version, compact = false, mode = "final" }: SachetProps) {
+export function Sachet({ items, version, compact = false, caption = true, mode = "final" }: SachetProps) {
   const showAmounts = (mode === "final" || mode === "draft") && items.length > 0;
   const ghost = !showAmounts;
   const text = compact ? "text-[11px] leading-snug" : "text-sm leading-snug sm:text-base";
@@ -91,14 +93,14 @@ export function Sachet({ items, version, compact = false, mode = "final" }: Sach
   return (
     <figure className="m-0 flex flex-col items-center">
       <div
-        className={`relative w-full ${compact ? "max-w-[190px]" : "max-w-[320px]"}`}
+        className={`relative w-full ${compact ? "max-w-[190px]" : "max-w-[360px]"}`}
         style={{ aspectRatio: `${W} / ${H}` }}
       >
         <Pouch ghost={ghost} />
         <div
           data-testid="sachet-label"
-          className="absolute flex flex-col [container-type:inline-size] rounded-md bg-ivory px-[6%] py-[5%] text-ink shadow-[inset_0_0_0_1px_rgba(15,76,74,0.18)]"
-          style={{ left: "12%", right: "12%", top: "17.5%", bottom: "16%" }}
+          className="absolute flex flex-col [container-type:inline-size] rounded-md bg-ivory px-[5%] py-[5%] text-ink shadow-[inset_0_0_0_1px_rgba(15,76,74,0.18)]"
+          style={{ left: "9%", right: "9%", top: "17.5%", bottom: "16%" }}
         >
           {/* Sized from the label width (cqw) so the title never wraps before "· v1". */}
           <p data-testid="sachet-title" className="whitespace-nowrap font-display text-[6.2cqw] font-semibold leading-tight text-teal">
@@ -125,9 +127,11 @@ export function Sachet({ items, version, compact = false, mode = "final" }: Sach
           )}
         </div>
       </div>
-      <figcaption className={`mt-4 text-center text-ink-muted ${compact ? "text-xs" : "text-sm"}`}>
-        Total daily formulation: one simulated sachet
-      </figcaption>
+      {caption && (
+        <figcaption className={`mt-4 text-center text-ink-muted ${compact ? "text-xs" : "text-sm"}`}>
+          Total daily formulation: one simulated sachet
+        </figcaption>
+      )}
     </figure>
   );
 }

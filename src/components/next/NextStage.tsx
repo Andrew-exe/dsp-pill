@@ -25,21 +25,19 @@ export function NextStage() {
       <h2 id="stage-heading" tabIndex={-1} className="font-display text-4xl font-semibold text-teal outline-none">
         Your Next Formula
       </h2>
-      <p className="mt-3 max-w-2xl text-lg leading-relaxed text-ink-muted">
-        Future tests can inform a revised formulation. Load a synthetic report from eight weeks later to see two
-        measured points per biomarker and a second simulated formula, built by the same fixed demonstration policy
-        from the same profile and supplements.
+      <p className="mt-2 max-w-2xl text-lg text-ink-muted">
+        A follow-up report eight weeks later, run through the same fixed policy, gives Formula v2.
       </p>
 
       <p
         data-testid="comparison-note"
-        className="mt-8 max-w-3xl rounded-2xl border-l-4 border-amber bg-amber-soft/60 px-6 py-4 font-display text-xl font-semibold leading-snug text-teal"
+        className="mt-4 max-w-3xl border-l-4 border-amber bg-amber-soft/60 px-4 py-2 text-sm font-semibold text-teal"
       >
         {NOTE}
       </p>
 
       {!followUp && (
-        <div className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-4">
+        <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-4">
           <button
             type="button"
             onClick={() => dispatch({ type: "loadFollowUp", biomarkers: FOLLOWUP_V2_BIOMARKERS })}
@@ -55,18 +53,6 @@ export function NextStage() {
             Download the synthetic week-8 report (PDF)
           </a>
         </div>
-      )}
-      {followUp && (
-        <p className="mt-6 text-sm text-ink-muted">
-          Loaded synthetic 8-week follow-up.{" "}
-          <a
-            href="/reports/dsp-pill-synthetic-report-week8.pdf"
-            download
-            className="font-semibold text-teal underline underline-offset-4"
-          >
-            Download the synthetic week-8 report (PDF)
-          </a>
-        </p>
       )}
 
       {followUp?.error && (
@@ -90,11 +76,24 @@ export function NextStage() {
       )}
 
       {followUp && v2 && result && (
-        <div className="mt-10 space-y-12">
+        <div className="mt-6 space-y-8">
           <div>
-            <h3 className="font-display text-2xl font-semibold text-teal">Measured values (synthetic)</h3>
-            <p className="mt-1 text-ink-muted">Two dated measurements per biomarker; the shaded band is the lab range from the report.</p>
-            <div className="mt-5 grid gap-6 md:grid-cols-2">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+              <h3 className="font-display text-xl font-semibold text-teal">Measured values (synthetic)</h3>
+              <p className="flex items-center gap-2 text-xs text-ink-muted">
+                <span aria-hidden className="inline-block h-2.5 w-5 bg-teal-soft" />
+                Lab range from the report
+                <span aria-hidden className="text-ink/30">|</span>
+                <a
+                  href="/reports/dsp-pill-synthetic-report-week8.pdf"
+                  download
+                  className="font-medium text-teal/80 underline underline-offset-4 hover:text-teal"
+                >
+                  Download the synthetic week-8 report (PDF)
+                </a>
+              </p>
+            </div>
+            <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
               {BIOMARKER_IDS.map((id) => (
                 <TrendChart
                   key={id}
@@ -106,8 +105,8 @@ export function NextStage() {
           </div>
 
           <div>
-            <h3 className="font-display text-2xl font-semibold text-teal">Formula v1 and Formula v2 (synthetic)</h3>
-            <div className="mt-5">
+            <h3 className="font-display text-xl font-semibold text-teal">Formula v1 and Formula v2 (synthetic)</h3>
+            <div className="mt-3">
               <FormulaComparison v1={result} v2={v2} />
             </div>
           </div>
