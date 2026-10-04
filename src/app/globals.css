@@ -7,6 +7,10 @@
   --color-teal-soft: #d9e8e5;
   --color-amber: #c98a1b;
   --color-amber-soft: #f6e7c4;
+  /* Amber for text: 5.5:1 on ivory (the base amber is ~2.7:1, decorative use only). */
+  --color-amber-ink: #8a5a0b;
+  --color-danger: #9b2c1f;
+  --color-danger-soft: #f7e1dc;
   --color-ink: #1d2b2a;
   --color-ink-muted: #5b6b69;
   --font-display: "Fraunces Variable", Georgia, serif;
@@ -28,7 +32,6 @@ body {
 :focus-visible {
   outline: 3px solid var(--color-amber);
   outline-offset: 3px;
-  border-radius: 6px;
 }
 
 @media (prefers-reduced-motion: reduce) {

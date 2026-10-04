@@ -18,8 +18,8 @@ export interface StageNavProps {
 
 export function StageNav({ current, reachable, onSelect }: StageNavProps) {
   return (
-    <nav aria-label="Walkthrough stages" className="px-6 py-6">
-      <ol className="mx-auto flex max-w-5xl flex-wrap gap-3">
+    <nav aria-label="Walkthrough stages" className="mx-auto max-w-5xl px-6 py-6">
+      <ol className="flex flex-wrap gap-3">
         {STAGES.map((stage, i) => {
           const isCurrent = stage.id === current;
           const isReachable = reachable.includes(stage.id);
