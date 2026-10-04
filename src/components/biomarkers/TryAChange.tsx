@@ -30,12 +30,12 @@ export function TryAChange() {
   }
   const ids = { d: useId(), diet: useId(), sup: useId() };
 
+  // The edit invalidates the old result at once (no stale amounts); the stage then sends one debounced request.
   function changeVitaminD(next: string) {
     setText(next);
     const n = Number(next);
     if (next.trim() === "" || !Number.isFinite(n) || n < 0) return;
     dispatch({ type: "editBiomarker", id: "vitaminD", value: n });
-    requestAssessment();
   }
 
   const d3 = supplements.find((s) => s.productId === "vitamin-d3");

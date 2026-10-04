@@ -1,7 +1,7 @@
 "use client";
 
 import { MotionConfig } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ReviewNotice } from "@/components/shared/ReviewNotice";
 import { useWalkthrough } from "@/components/studio/WalkthroughProvider";
 import { BIOMARKER_IDS } from "@/lib/domain/types";
@@ -11,10 +11,18 @@ import { TryAChange } from "./TryAChange";
 export function BiomarkersStage() {
   const { state, dispatch, requestAssessment } = useWalkthrough();
   const { result, resultState, biomarkers } = state;
+  // Cards from the previous result stay mounted (marked pending, amounts hidden) so markers glide instead of remounting.
+  const [last, setLast] = useState(result);
+  if (result && result !== last) setLast(result);
+  const shown = result ?? last;
+  const pending = result === null;
 
-  // After an input change was invalidated and re-confirmed, there may be no result yet: ask for one (once per idle).
+  // Whenever inputs were invalidated and nothing is in flight (an edit, or a re-confirm after returning here),
+  // ask for a fresh result. The short delay lets a slider drag settle into one request; the last value is sent.
   useEffect(() => {
-    if (biomarkers && result === null && resultState === "idle") requestAssessment();
+    if (!biomarkers || result !== null || resultState !== "idle") return;
+    const timer = setTimeout(() => requestAssessment(), 150);
+    return () => clearTimeout(timer);
   }, [biomarkers, result, resultState, requestAssessment]);
 
   return (
@@ -29,6 +37,8 @@ export function BiomarkersStage() {
         </p>
 
         <div className="mt-10 space-y-8">
+          <TryAChange />
+
           {result && <ReviewNotice result={result} />}
 
           {resultState === "error" && (
@@ -45,7 +55,7 @@ export function BiomarkersStage() {
             </div>
           )}
 
-          {!result && resultState !== "error" && (
+          {!shown && resultState !== "error" && (
             <div aria-busy="true" className="space-y-8">
               <p role="status" className="text-lg text-ink-muted">
                 Calculating your analysis…
@@ -56,15 +66,14 @@ export function BiomarkersStage() {
             </div>
           )}
 
-          {result &&
+          {shown &&
+            resultState !== "error" &&
             BIOMARKER_IDS.map((id) => {
-              const interp = result.interpretations.find((i) => i.id === id)!;
+              const interp = shown.interpretations.find((i) => i.id === id)!;
               const nutrient = NUTRIENT_FOR[id];
-              const decision = nutrient ? (result.decisions.find((d) => d.nutrient === nutrient) ?? null) : null;
-              return <BiomarkerCard key={id} interp={interp} decision={decision} />;
+              const decision = nutrient ? (shown.decisions.find((d) => d.nutrient === nutrient) ?? null) : null;
+              return <BiomarkerCard key={id} interp={interp} decision={decision} pending={pending} />;
             })}
-
-          <TryAChange />
 
           {result && (
             <div className="flex justify-end">

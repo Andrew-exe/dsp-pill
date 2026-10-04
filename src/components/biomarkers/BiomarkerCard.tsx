@@ -14,18 +14,22 @@ export const NUTRIENT_FOR: Record<BiomarkerId, NutrientId | null> = {
 };
 
 const dash = "—";
+const updating = "Updating…";
 
 export function BiomarkerCard({
   interp,
   decision,
+  pending = false,
 }: {
   interp: BiomarkerInterpretation;
   decision: IngredientDecision | null;
+  /** The shown result is from before the latest edit: amounts are hidden until the fresh one arrives. */
+  pending?: boolean;
 }) {
   const nutrient = NUTRIENT_FOR[interp.id];
   const fmt = (n: number | null) => (n === null || !nutrient ? dash : formatQuantity(nutrient, n));
   return (
-    <article data-testid={`biomarker-card-${interp.id}`} className="rounded-2xl border border-ink/10 bg-white/70 p-6 sm:p-8">
+    <article data-testid={`biomarker-card-${interp.id}`} aria-busy={pending} className="rounded-2xl border border-ink/10 bg-white/70 p-6 sm:p-8">
       <header className="flex flex-wrap items-baseline justify-between gap-3">
         <h3 className="font-display text-2xl font-semibold text-teal">{interp.label}</h3>
         <p className="text-xl font-semibold text-ink">
@@ -44,31 +48,33 @@ export function BiomarkerCard({
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="font-semibold text-ink">{decision.ingredientName}</p>
-              <StatusBadge status={decision.status} />
+              {pending ? <span className="rounded-full bg-ink/10 px-3 py-1 text-sm font-semibold text-ink-muted">Updating…</span> : <StatusBadge status={decision.status} />}
             </div>
             <dl className="mt-4 grid gap-4 sm:grid-cols-3">
               <div>
                 <dt className="text-sm text-ink-muted">Formula amount</dt>
                 <dd data-testid={`formula-amount-${nutrient}`} className="font-display text-2xl text-teal">
-                  {decision.status === "included" ? fmt(decision.formulaAddition) : dash}
+                  {pending ? updating : decision.status === "included" ? fmt(decision.formulaAddition) : dash}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm text-ink-muted">Existing supplement, per day</dt>
-                <dd className="text-xl text-ink">{formatQuantity(nutrient, decision.existingDaily)}</dd>
+                <dd className="text-xl text-ink">{pending ? updating : formatQuantity(nutrient, decision.existingDaily)}</dd>
               </div>
               <div>
                 <dt className="text-sm text-ink-muted">Combined daily amount</dt>
-                <dd className="text-xl text-ink">{fmt(decision.combinedDaily)}</dd>
+                <dd className="text-xl text-ink">{pending ? updating : fmt(decision.combinedDaily)}</dd>
               </div>
             </dl>
-            <p className="mt-4 text-ink">{decision.explanation}</p>
+            {!pending && <p className="mt-4 text-ink">{decision.explanation}</p>}
             {interp.id === "magnesium" && (
               <p className="mt-2 text-ink-muted">
                 Serum magnesium does not establish whole-body magnesium stores, so this is one data point, not a full picture.
               </p>
             )}
           </>
+        ) : interp.id !== "ferritin" ? (
+          <p className="text-ink-muted">No decision available.</p>
         ) : (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3">

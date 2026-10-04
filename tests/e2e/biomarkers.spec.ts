@@ -46,15 +46,56 @@ test("Try a change re-evaluates the amounts", async ({ page }) => {
   for (const n of ["vitaminD", "b12", "magnesium", "folicAcid"]) await expect(amount(page, n)).toHaveText("—");
 });
 
-test("rapid edits end on the last value", async ({ page }) => {
+test("a slow response for an earlier edit never overwrites the last one", async ({ page }) => {
   await goToAnalysis(page);
+  let release!: () => void;
+  const gate = new Promise<void>((r) => (release = r));
+  let eighteenDelivered = false;
+  await page.route("**/api/formulate", async (route) => {
+    const body = route.request().postDataJSON() as { biomarkers: { id: string; value: number }[] };
+    const d = body.biomarkers.find((b) => b.id === "vitaminD")!.value;
+    try {
+      const response = await route.fetch();
+      if (d === 30) await gate; // the 30 response is held back until the 18 one has been delivered
+      await route.fulfill({ response });
+      if (d === 18) {
+        eighteenDelivered = true;
+        release();
+      }
+    } catch {
+      // The browser aborted a superseded request: nothing to deliver.
+    }
+  });
+
   const dInput = page.getByLabel("Vitamin D value", { exact: true });
+  // Each edit is separated by more than the debounce so every value is really sent.
   await dInput.fill("15");
+  await page.waitForTimeout(300);
   await dInput.fill("30");
+  await page.waitForTimeout(300);
   await dInput.fill("18");
   await expect(amount(page, "vitaminD")).toHaveText("600 IU / 15 mcg");
-  await page.waitForTimeout(500);
+  expect(eighteenDelivered).toBe(true);
+  await page.waitForTimeout(800); // the held 30 response is released now
   await expect(amount(page, "vitaminD")).toHaveText("600 IU / 15 mcg");
+});
+
+test("an edit hides the old amounts until the fresh result arrives", async ({ page }) => {
+  await goToAnalysis(page);
+  let release!: () => void;
+  const gate = new Promise<void>((r) => (release = r));
+  await page.route("**/api/formulate", async (route) => {
+    const response = await route.fetch();
+    await gate;
+    await route.fulfill({ response });
+  });
+  await page.getByLabel("Vitamin D value", { exact: true }).fill("25");
+  await expect(amount(page, "vitaminD")).toHaveText("Updating…");
+  await expect(amount(page, "b12")).toHaveText("Updating…");
+  await expect(page.getByTestId("biomarker-card-vitaminD")).toHaveAttribute("aria-busy", "true");
+  release();
+  await expect(amount(page, "vitaminD")).toHaveText("—");
+  await expect(page.getByTestId("biomarker-card-vitaminD")).toHaveAttribute("aria-busy", "false");
 });
 
 test("changing context after the analysis never shows stale amounts", async ({ page }) => {
