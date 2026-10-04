@@ -1,3 +1,4 @@
+import { useId } from "react";
 import { formatItem } from "@/lib/client/formatAmount";
 import type { FormulationItem } from "@/lib/safety/policy";
 
@@ -34,37 +35,43 @@ const POUCH_PATH =
 
 /** The decorative pouch. The printed label is HTML laid over it so text wraps and stays selectable. */
 function Pouch({ ghost }: { ghost: boolean }) {
+  // Several sachets can share a page (v1 and v2), so the SVG ids must be unique per instance.
+  const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
+  const foil = `sachet-foil-${uid}`;
+  const sheen = `sachet-sheen-${uid}`;
+  const clip = `sachet-clip-${uid}`;
+  const seal = `sachet-seal-${uid}`;
   return (
     <svg viewBox={`0 0 ${W} ${H}`} aria-hidden="true" focusable="false" className="absolute inset-0 h-full w-full">
       <defs>
-        <linearGradient id="sachet-foil" x1="0" x2="1" y1="0" y2="0">
+        <linearGradient id={foil} x1="0" x2="1" y1="0" y2="0">
           <stop offset="0" stopColor="#0a3836" />
           <stop offset="0.22" stopColor="#15625e" />
           <stop offset="0.5" stopColor="#0f4c4a" />
           <stop offset="0.85" stopColor="#0b3f3d" />
           <stop offset="1" stopColor="#082f2e" />
         </linearGradient>
-        <linearGradient id="sachet-sheen" x1="0" x2="1" y1="0" y2="0">
+        <linearGradient id={sheen} x1="0" x2="1" y1="0" y2="0">
           <stop offset="0" stopColor="#fff" stopOpacity="0" />
           <stop offset="0.16" stopColor="#fff" stopOpacity="0.2" />
           <stop offset="0.24" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
-        <clipPath id="sachet-clip">
+        <clipPath id={clip}>
           <path d={POUCH_PATH} />
         </clipPath>
-        <pattern id="sachet-seal" width="6" height="6" patternUnits="userSpaceOnUse">
+        <pattern id={seal} width="6" height="6" patternUnits="userSpaceOnUse">
           <path d="M0 6 L6 0" stroke="#fff" strokeOpacity="0.16" strokeWidth="1" />
         </pattern>
       </defs>
       <ellipse cx="160" cy="432" rx="130" ry="7" fill="#1d2b2a" opacity={ghost ? 0.05 : 0.14} />
       <g opacity={ghost ? 0.35 : 1}>
-        <path d={POUCH_PATH} fill="url(#sachet-foil)" />
-        <g clipPath="url(#sachet-clip)">
-          <rect x="0" y="0" width={W} height="52" fill="url(#sachet-seal)" />
-          <rect x="0" y="388" width={W} height="52" fill="url(#sachet-seal)" />
+        <path d={POUCH_PATH} fill={`url(#${foil})`} />
+        <g clipPath={`url(#${clip})`}>
+          <rect x="0" y="0" width={W} height="52" fill={`url(#${seal})`} />
+          <rect x="0" y="388" width={W} height="52" fill={`url(#${seal})`} />
           <line x1="0" y1="52" x2={W} y2="52" stroke="#fff" strokeOpacity="0.28" />
           <line x1="0" y1="388" x2={W} y2="388" stroke="#fff" strokeOpacity="0.28" />
-          <rect x="0" y="0" width={W} height={H} fill="url(#sachet-sheen)" />
+          <rect x="0" y="0" width={W} height={H} fill={`url(#${sheen})`} />
           <rect x="0" y="52" width="14" height="336" fill="#000" opacity="0.1" />
           <rect x={W - 14} y="52" width="14" height="336" fill="#000" opacity="0.14" />
           <rect x="0" y="40" width={W} height="3" fill="#c98a1b" />

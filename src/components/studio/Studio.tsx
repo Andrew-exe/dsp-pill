@@ -4,9 +4,10 @@ import { useEffect, useRef } from "react";
 import { BiomarkersStage } from "@/components/biomarkers/BiomarkersStage";
 import { ContextStage } from "@/components/context/ContextStage";
 import { FormulaStage } from "@/components/formula/FormulaStage";
+import { NextStage } from "@/components/next/NextStage";
 import { StartStage } from "@/components/intake/StartStage";
 import { DisclaimerBanner } from "@/components/shell/DisclaimerBanner";
-import { STAGES, StageNav, type StageId } from "@/components/shell/StageNav";
+import { StageNav, type StageId } from "@/components/shell/StageNav";
 import { reachableStages } from "@/lib/client/walkthrough";
 import { WalkthroughProvider, useWalkthrough } from "./WalkthroughProvider";
 
@@ -50,34 +51,8 @@ function StudioBody() {
         {state.stage === "context" && <ContextStage />}
         {state.stage === "biomarkers" && <BiomarkersStage />}
         {state.stage === "formula" && <FormulaStage />}
-        {state.stage === "next" && (
-          <PlaceholderStage stage={state.stage} />
-        )}
+        {state.stage === "next" && <NextStage />}
       </main>
     </>
-  );
-}
-
-/** Stages 3–5 are filled in by later tasks. */
-function PlaceholderStage({ stage }: { stage: StageId }) {
-  const { state } = useWalkthrough();
-  const label = STAGES.find((s) => s.id === stage)!.label;
-  const status =
-    state.resultState === "loading"
-      ? "Calculating your analysis…"
-      : state.resultState === "error"
-        ? state.resultError
-        : state.resultState === "ready"
-          ? "Your analysis is ready."
-          : "Your analysis will appear here.";
-  return (
-    <section aria-labelledby="stage-heading">
-      <h2 id="stage-heading" tabIndex={-1} className="font-display text-4xl font-semibold text-teal outline-none">
-        {label}
-      </h2>
-      <p role="status" className="mt-4 text-lg text-ink-muted">
-        {status}
-      </p>
-    </section>
   );
 }
