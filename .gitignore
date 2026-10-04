@@ -1,2 +1,23 @@
 docs/
 
+
+# dependencies
+/node_modules
+# next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+# env / misc
+.env*
+.DS_Store
+*.pem
+npm-debug.log*
+# tooling
+.superpowers/
+.venv/
+public/pdf.worker.min.mjs
+test-results/
+playwright-report/
+/coverage
