@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { BiomarkersStage } from "@/components/biomarkers/BiomarkersStage";
 import { ContextStage } from "@/components/context/ContextStage";
+import { FormulaStage } from "@/components/formula/FormulaStage";
 import { StartStage } from "@/components/intake/StartStage";
 import { DisclaimerBanner } from "@/components/shell/DisclaimerBanner";
 import { STAGES, StageNav, type StageId } from "@/components/shell/StageNav";
@@ -48,7 +49,8 @@ function StudioBody() {
         {state.stage === "start" && <StartStage />}
         {state.stage === "context" && <ContextStage />}
         {state.stage === "biomarkers" && <BiomarkersStage />}
-        {(state.stage === "formula" || state.stage === "next") && (
+        {state.stage === "formula" && <FormulaStage />}
+        {state.stage === "next" && (
           <PlaceholderStage stage={state.stage} />
         )}
       </main>

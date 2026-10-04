@@ -1,8 +1,9 @@
 "use client";
 
 import { MotionConfig } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ReviewNotice } from "@/components/shared/ReviewNotice";
+import { useEnsureAssessment } from "@/components/studio/useEnsureAssessment";
 import { useWalkthrough } from "@/components/studio/WalkthroughProvider";
 import { BIOMARKER_IDS } from "@/lib/domain/types";
 import { BiomarkerCard, NUTRIENT_FOR } from "./BiomarkerCard";
@@ -10,20 +11,14 @@ import { TryAChange } from "./TryAChange";
 
 export function BiomarkersStage() {
   const { state, dispatch, requestAssessment } = useWalkthrough();
-  const { result, resultState, biomarkers } = state;
+  const { result, resultState } = state;
   // Cards from the previous result stay mounted (marked pending, amounts hidden) so markers glide instead of remounting.
   const [last, setLast] = useState(result);
   if (result && result !== last) setLast(result);
   const shown = result ?? last;
   const pending = result === null;
 
-  // Whenever inputs were invalidated and nothing is in flight (an edit, or a re-confirm after returning here),
-  // ask for a fresh result. The short delay lets a slider drag settle into one request; the last value is sent.
-  useEffect(() => {
-    if (!biomarkers || result !== null || resultState !== "idle") return;
-    const timer = setTimeout(() => requestAssessment(), 150);
-    return () => clearTimeout(timer);
-  }, [biomarkers, result, resultState, requestAssessment]);
+  useEnsureAssessment();
 
   return (
     <MotionConfig reducedMotion="user">
